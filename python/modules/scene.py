@@ -14,7 +14,7 @@ def colorPD(pd,lc,c):
     return pd
 
 class Scene:
-    def __init__(self, size=1000, background=(1,1,1), camPosition=(20,10,20), camFocal=(0,0,0)):
+    def __init__(self, size=600, background=(1,1,1), camPosition=(20,10,25), camFocal=(0,0,0)):
 
         self.renderer = vtk.vtkRenderer()
         self.renderWindow = vtk.vtkRenderWindow()
@@ -30,11 +30,12 @@ class Scene:
 
         self.renderer.SetActiveCamera(self.camera)
 
-        axes = vtk.vtkAxesActor()
+        # axes = vtk.vtkAxesActor()
+        #
+        # self.renderer.AddActor(axes)
 
-        self.renderer.AddActor(axes)
-    def addObject(self,pd, linecolor=(0.0,0.0,0.0), linewidth=1.0,
-        color=(255,255,255), wireframe=False, noLight=True):
+    def addObject(self,pd, linecolor=(0.0,0.0,0.0), linewidth=3.0,
+        color=(255,255,255), wireframe=False, noLight=True, opacity=1.0):
         pd = colorPD(pd,linecolor,color)
 
         m = vtk.vtkPolyDataMapper()
@@ -45,6 +46,7 @@ class Scene:
         self.renderer.AddActor(a)
 
         a.GetProperty().SetLineWidth(linewidth)
+        a.GetProperty().SetOpacity(opacity)
         if wireframe:
             a.GetProperty().SetRepresentationToWireframe()
 
@@ -55,5 +57,14 @@ class Scene:
         self.renderWindow.Render()
         self.interactor.Start()
 
-    def save(self):
-        pass
+    def save(self, fn):
+        exp = vtk.vtkGL2PSExporter()
+        exp.SetRenderWindow(self.renderWindow)
+        exp.SetFilePrefix(fn)
+        exp.CompressOff()
+        exp.SetSortToBSP()
+        exp.DrawBackgroundOn()
+        exp.PS3ShadingOn()
+        exp.SetFileFormatToPDF()
+        exp.Write3DPropsAsRasterImageOn()
+        exp.Write()

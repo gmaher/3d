@@ -41,6 +41,23 @@ def mergePDs(pds):
     cleaner.Update()
     return cleaner.GetOutput()
 
+def line(start=[0.0,0.0,0.0],end=[1.0,1.0,1.0]):
+    lines = vtk.vtkCellArray()
+    points = vtk.vtkPoints()
+
+    points.InsertNextPoint(start)
+    points.InsertNextPoint(end)
+
+    l = vtk.vtkLine()
+    l.GetPointIds().SetId(0,0)
+    l.GetPointIds().SetId(1,1)
+    lines.InsertNextCell(l)
+
+    pd = vtk.vtkPolyData()
+    pd.SetPoints(points)
+    pd.SetLines(lines)
+
+    return pd
 
 def square(center=[0.0,0.0,0.0],orientation=0):
     lines = vtk.vtkCellArray()
@@ -116,3 +133,16 @@ def grid(n1,n2,center=[0.0,0.0,0.0],orientation=0):
     grid = mergePDs(squares)
     grid = rotateXYZ(grid,orientation)
     return grid
+
+def cubeGrid(nx,ny,nz,center=[0.0,0.0,0.0]):
+    cubes = []
+    for i in range(nx):
+        for j in range(ny):
+            for k in range(nz):
+                c = cube(center=(i,j,k))
+                cubes.append(c)
+
+    pd = mergePDs(cubes)
+    pd = translate(pd,center[0]-float(nx)/2,center[1]-float(ny)/2,
+        center[2]-float(nz)/2)
+    return pd
